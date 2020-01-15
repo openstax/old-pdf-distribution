@@ -41,6 +41,13 @@ def lambda_handler(event, context):
         Key={'current': {'S': 'current'}},
     )
 
+    cur_config_id = response['Item']['data']['S']
+
+    response = ddb_client.get_item(
+        TableName='kevin-sam-hello-world-ConfigsTable-O8A9K3QHQBP5',
+        Key={'config_id': {'S': cur_config_id}},
+    )
+
     return {
         'statusCode': 200,
         'body': json.dumps(response['Item'])
