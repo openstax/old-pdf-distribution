@@ -1,3 +1,4 @@
+import boto3
 import json
 
 # import requests
@@ -33,10 +34,21 @@ def lambda_handler(event, context):
 
     #     raise e
 
+    ddb_client = boto3.client('dynamodb')
+
+    response = ddb_client.get_item(
+        TableName='kevin-sam-hello-world-ConfigVersionTable-1QZDCSVDY1ASO',
+        Key={'current': {'S': 'current'}},
+    )
+
     return {
-        "statusCode": 200,
-        "body": json.dumps({
-            "message": "new hello world",
-            # "location": ip.text.replace("\n", "")
-        }),
+        'statusCode': 200,
+        'body': json.dumps(response['Item'])
     }
+    # return {
+    #     "statusCode": 200,
+    #     "body": json.dumps({
+    #         "message": "new hello world",
+    #         # "location": ip.text.replace("\n", "")
+    #     }),
+    # }

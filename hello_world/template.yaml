@@ -17,12 +17,48 @@ Resources:
       CodeUri: hello_world/
       Handler: app.lambda_handler
       Runtime: python3.7
+
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                  - dynamodb:GetItem
+              Resource: !GetAtt ConfigVersionTable.Arn
+
       Events:
         HelloWorld:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
             Path: /hello
             Method: get
+
+  ConfigsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        -
+          AttributeName: config_id
+          AttributeType: S
+      KeySchema:
+        -
+          AttributeName: config_id
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+
+  ConfigVersionTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        -
+          AttributeName: current
+          AttributeType: S
+      KeySchema:
+        -
+          AttributeName: current
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
@@ -37,3 +73,9 @@ Outputs:
   HelloWorldFunctionIamRole:
     Description: "Implicit IAM Role created for Hello World function"
     Value: !GetAtt HelloWorldFunctionRole.Arn
+  HelloWorldConfigsTable:
+    Description: "DynamoDB table holding config versions"
+    Value: !GetAtt ConfigsTable.Arn
+  HelloWorldConfigVersionTable:
+    Description: "DynamoDB table holding the current config version to use"
+    Value: !GetAtt ConfigVersionTable.Arn
